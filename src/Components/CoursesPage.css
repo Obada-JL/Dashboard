@@ -1,0 +1,49 @@
+/* Modal Content Styling */
+.modal-content-detail {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Title Styling */
+.detail-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Section Styling */
+.details-section {
+  margin-bottom: 20px;
+}
+
+.details-section h5 {
+  font-size: 1.2em;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+/* Image Gallery Styling */
+.image-gallery {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.course-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* Modal Title and Body Styling */
+.modal-title {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.modal-body {
+  background-color: #f9f9f9;
+  padding: 20px;
+}

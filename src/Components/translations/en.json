@@ -1,0 +1,17 @@
+{
+    "addStudent": "Add New Student",
+    "editStudent": "Edit Student",
+    "viewStudent": "View Student",
+    "name": "Name",
+    "startDate": "Start Date",
+    "currentPage": "Current Page",
+    "lastLessonDate": "Last Lesson Date",
+    "lastQuiz": "Last Quiz",
+    "note": "Note",
+    "studentImage": "Student Image",
+    "saveChanges": "Save Changes",
+    "addStudentButton": "Add Student",
+    "closeButton": "Close",
+    "deleteButton": "Delete",
+    "studentsTitle": " Student Managment"
+}

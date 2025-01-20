@@ -1,0 +1,17 @@
+{
+    "addStudent": "إضافة طالب جديد",
+    "editStudent": "تعديل الطالب",
+    "viewStudent": "عرض الطالب",
+    "name": "الاسم",
+    "startDate": "تاريخ البدء",
+    "currentPage": "الصفحة الحالية",
+    "lastLessonDate": "تاريخ آخر درس",
+    "lastQuiz": "آخر اختبار",
+    "note": "ملاحظة",
+    "studentImage": "صورة الطالب",
+    "saveChanges": "حفظ التغييرات",
+    "addStudentButton": "إضافة طالب",
+    "closeButton": "إغلاق",
+    "deleteButton": "حذف",
+    "studentsTitle": "إدارة الطلاب"
+}
