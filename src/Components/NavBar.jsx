@@ -55,6 +55,9 @@ export default function NavBar() {
               <a href="/products">Products</a>
             </li>
             <li>
+              <a href="/news">News</a>
+            </li>
+            <li>
               <a href="/messages">Messages</a>
             </li>
             {/* <li className="dropdown">

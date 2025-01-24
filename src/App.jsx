@@ -12,6 +12,7 @@ import ProductsPage from "./Components/ProductsPage";
 import MessagesPage from "./Components/MessagesPage";
 import CourseDetails from "./Components/CourseDetails";
 import NotFound from "./Components/404Page";
+import NewsPage from "./Components/NewsPage";
 function App() {
   const router = createBrowserRouter([
     {
@@ -45,6 +46,10 @@ function App() {
         {
           path: "/messages",
           element: <MessagesPage />,
+        },
+        {
+          path: "/news",
+          element: <NewsPage />,
         },
         { path: "/course/:id", element: <CourseDetails /> },
         { path: "*", element: <NotFound /> },
