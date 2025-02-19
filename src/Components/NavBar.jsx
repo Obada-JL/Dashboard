@@ -46,61 +46,19 @@ export default function NavBar() {
         <nav className="main_nav">
           <ul className="d-flex flex-row align-items-center">
             <li>
-              <a href="/students">Students</a>
+              <a href="/students">الطلاب</a>
             </li>
             <li>
-              <a href="/courses">Courses</a>
+              <a href="/courses">الدورات</a>
             </li>
             <li>
-              <a href="/products">Products</a>
+              <a href="/products">المنتجات</a>
             </li>
             <li>
-              <a href="/news">News</a>
+              <a href="/messages">الرسائل</a>
             </li>
             <li>
-              <a href="/messages">Messages</a>
-            </li>
-            {/* <li className="dropdown">
-                <a href="#" className="d-flex flex-row align-items-end">
-                  <span>Pages</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 -960 960 960"
-                  >
-                    <path d="M480-346.85 253.85-573 291-610.15l189 189 189-189L706.15-573 480-346.85Z" />
-                  </svg>
-                </a>
-                <div className="dropdown_panel_outer">
-                  <ul className="dropdown_panel trans_200">
-                    <li>
-                      <a href="/">Home</a>
-                    </li>
-                    <li>
-                      <a href="about.html">About</a>
-                    </li>
-                    <li>
-                      <a href="courses.html">Courses</a>
-                    </li>
-                    <li>
-                      <a href="course.html">Course Details</a>
-                    </li>
-                    <li>
-                      <a href="blog.html">Blog</a>
-                    </li>
-                    <li>
-                      <a href="blog_single.html">Blog Details</a>
-                    </li>
-                    <li>
-                      <a href="contact.html">Contact</a>
-                    </li>
-                    <li>
-                      <a href="login.html">Sign in</a>
-                    </li>
-                  </ul>
-                </div>
-              </li> */}
-            <li>
-              <a href="/users">Users</a>
+              <a href="/users">المستخدمين</a>
             </li>
           </ul>
         </nav>

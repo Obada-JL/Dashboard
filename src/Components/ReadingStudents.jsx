@@ -15,7 +15,9 @@ export default function ReadingStudents() {
   const fetchStudents = async () => {
     setLoading(true); // Start loading when fetching
     try {
-      const response = await axios.get("http://localhost:5000/api/getStudents");
+      const response = await axios.get(
+        "https://lin-server.onrender.com/api/getStudents"
+      );
       setStudents(response.data); // Assuming the response is an array of students
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -56,12 +58,16 @@ export default function ReadingStudents() {
 
     try {
       if (modalMode === "add") {
-        await axios.post("http://localhost:5000/api/addStudent", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await axios.post(
+          "https://lin-server.onrender.com/api/addStudent",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
       } else if (modalMode === "edit") {
         await axios.put(
-          `http://localhost:5000/api/updateStudent/${selectedStudent._id}`,
+          `https://lin-server.onrender.com/api/updateStudent/${selectedStudent._id}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -88,7 +94,9 @@ export default function ReadingStudents() {
       .then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await axios.delete(`http://localhost:5000/api/deleteStudent/${id}`);
+            await axios.delete(
+              `https://lin-server.onrender.com/api/deleteStudent/${id}`
+            );
             fetchStudents(); // Refresh student list
             Swal.fire(translations[language].delete, "", "success");
           } catch (error) {
@@ -270,7 +278,7 @@ export default function ReadingStudents() {
           <div className="d-flex justify-content-center">
             {selectedStudent.studentImage && (
               <img
-                src={`http://localhost:5000/studentsImages/${selectedStudent.studentImage}`}
+                src={`https://lin-server.onrender.com/studentsImages/${selectedStudent.studentImage}`}
                 alt="Student"
                 width="150"
               />
@@ -344,7 +352,7 @@ export default function ReadingStudents() {
                 <label>{t.studentImage}:</label>
                 {selectedStudent.studentImage && (
                   <img
-                    src={`http://localhost:5000/studentsImages/${selectedStudent.studentImage}`}
+                    src={`https://lin-server.onrender.com/studentsImages/${selectedStudent.studentImage}`}
                     alt="Student"
                     width="150"
                   />

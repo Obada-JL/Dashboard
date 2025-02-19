@@ -15,7 +15,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 
-const ProductsPage = () => {
+export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -23,16 +23,16 @@ const ProductsPage = () => {
   const [newProduct, setNewProduct] = useState({
     mainImage: null,
     sliderImages: [],
-    title: "",
-    name: "",
-    description: "",
+    title: { en: "", ar: "" },
+    name: { en: "", ar: "" },
+    description: { en: "", ar: "" },
     features: {
-      dimensions: "",
-      pageCount: "",
-      publishingPlace: "",
-      edition: "",
-      publishDate: "",
-      language: "",
+      dimensions: { en: "", ar: "" },
+      pageCount: { en: "", ar: "" },
+      publishingPlace: { en: "", ar: "" },
+      edition: { en: "", ar: "" },
+      publishDate: { en: "", ar: "" },
+      language: { en: "", ar: "" },
     },
   });
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,9 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/getProducts");
+      const response = await axios.get(
+        "https://lin-server.onrender.com/api/getProducts"
+      );
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -72,70 +74,67 @@ const ProductsPage = () => {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleFeatureChange = (field, value) => {
+  const handleFeatureChange = (featureKey, lang, value) => {
     setNewProduct((prev) => ({
       ...prev,
       features: {
         ...prev.features,
-        [field]: value,
+        [featureKey]: {
+          ...prev.features[featureKey],
+          [lang]: value,
+        },
       },
     }));
   };
 
   // Add or Update Product
   const handleSaveProduct = async () => {
+    const formData = new FormData();
+
+    // Handle files
+    if (newProduct.mainImage) {
+      formData.append("mainImage", newProduct.mainImage);
+    }
+    if (newProduct.sliderImages.length > 0) {
+      newProduct.sliderImages.forEach((image) => {
+        formData.append("sliderImages", image);
+      });
+    }
+
+    // Handle text fields
+    Object.keys(newProduct.title).forEach((lang) => {
+      formData.append(`title_${lang}`, newProduct.title[lang]);
+    });
+
+    Object.keys(newProduct.name).forEach((lang) => {
+      formData.append(`name_${lang}`, newProduct.name[lang]);
+    });
+
+    Object.keys(newProduct.description).forEach((lang) => {
+      formData.append(`description_${lang}`, newProduct.description[lang]);
+    });
+
+    // Handle features object
+    const featuresObj = {};
+    Object.keys(newProduct.features).forEach((key) => {
+      featuresObj[key] = newProduct.features[key];
+    });
+    formData.append("features", JSON.stringify(featuresObj));
+
     try {
-      const formData = new FormData();
-
-      // Handle mainImage
-      if (newProduct.mainImage instanceof File) {
-        formData.append("mainImage", newProduct.mainImage);
-      } else if (selectedProduct && selectedProduct.mainImage) {
-        formData.append("existingMainImage", selectedProduct.mainImage);
-      }
-
-      // Handle sliderImages
-      if (newProduct.sliderImages.some((img) => img instanceof File)) {
-        // If new files were selected
-        newProduct.sliderImages.forEach((file) => {
-          if (file instanceof File) {
-            formData.append("sliderImages", file);
-          }
-        });
-      } else if (selectedProduct && selectedProduct.sliderImages) {
-        // Keep existing slider images
-        formData.append(
-          "existingSliderImages",
-          JSON.stringify(selectedProduct.sliderImages)
-        );
-      }
-
-      formData.append("title", newProduct.title);
-      formData.append("name", newProduct.name);
-      formData.append("description", newProduct.description);
-
-      // Ensure features is properly stringified
-      const features = {
-        dimensions: newProduct.features.dimensions || "",
-        pageCount: newProduct.features.pageCount || "",
-        publishingPlace: newProduct.features.publishingPlace || "",
-        edition: newProduct.features.edition || "",
-        publishDate: newProduct.features.publishDate || "",
-        language: newProduct.features.language || "",
-      };
-      formData.append("features", JSON.stringify(features));
-
-      if (selectedProduct) {
-        await axios.put(
-          `http://localhost:5000/api/updateProduct/${selectedProduct._id}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-      } else {
-        await axios.post("http://localhost:5000/api/addProduct", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-      }
+      const response = selectedProduct
+        ? await axios.put(
+            `https://lin-server.onrender.com/api/updateProduct/${selectedProduct._id}`,
+            formData,
+            { headers: { "Content-Type": "multipart/form-data" } }
+          )
+        : await axios.post(
+            "https://lin-server.onrender.com/api/addProduct",
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
 
       fetchProducts();
       handleCloseEditModal();
@@ -147,7 +146,9 @@ const ProductsPage = () => {
   // Delete Product
   const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/deleteProduct/${id}`);
+      await axios.delete(
+        `https://lin-server.onrender.com/api/deleteProduct/${id}`
+      );
       fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -204,16 +205,16 @@ const ProductsPage = () => {
     setNewProduct({
       mainImage: null,
       sliderImages: [],
-      title: "",
-      name: "",
-      description: "",
+      title: { en: "", ar: "" },
+      name: { en: "", ar: "" },
+      description: { en: "", ar: "" },
       features: {
-        dimensions: "",
-        pageCount: "",
-        publishingPlace: "",
-        edition: "",
-        publishDate: "",
-        language: "",
+        dimensions: { en: "", ar: "" },
+        pageCount: { en: "", ar: "" },
+        publishingPlace: { en: "", ar: "" },
+        edition: { en: "", ar: "" },
+        publishDate: { en: "", ar: "" },
+        language: { en: "", ar: "" },
       },
     });
   };
@@ -240,12 +241,14 @@ const ProductsPage = () => {
                 <Card.Img
                   variant="top"
                   //   src={product.mainImage}
-                  src={`http://localhost:5000/productsImages/${product.mainImage}`}
+                  src={`https://lin-server.onrender.com/productsImages/${product.mainImage}`}
                   alt={product.title}
                   style={{ height: "200px", objectFit: "cover" }}
                 />
                 <Card.Body>
-                  <Card.Title>{product.title}</Card.Title>
+                  <Card.Title>
+                    {product.title?.ar} / {product.title?.en}
+                  </Card.Title>
                   <div className="d-flex flex-column gap-3 justify-content-between mt-3">
                     <Button
                       variant="info"
@@ -289,7 +292,7 @@ const ProductsPage = () => {
                       style={{ width: "100%", height: "200px" }}
                     >
                       <img
-                        src={`http://localhost:5000/productsImages/${selectedProduct.mainImage}`}
+                        src={`https://lin-server.onrender.com/productsImages/${selectedProduct.mainImage}`}
                         alt={selectedProduct.title}
                         className="img-fluid rounded"
                         style={{
@@ -305,14 +308,24 @@ const ProductsPage = () => {
                   <div className="mb-4">
                     <h6 className="fw-bold mb-3">Product Information</h6>
                     <p className="mb-2">
-                      <strong>Title:</strong> {selectedProduct.title}
+                      <strong>Title (EN):</strong> {selectedProduct.title?.en}
                     </p>
                     <p className="mb-2">
-                      <strong>Name:</strong> {selectedProduct.name}
+                      <strong>Title (AR):</strong> {selectedProduct.title?.ar}
                     </p>
-                    <p>
-                      <strong>Description:</strong>{" "}
-                      {selectedProduct.description}
+                    <p className="mb-2">
+                      <strong>Name (EN):</strong> {selectedProduct.name?.en}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Name (AR):</strong> {selectedProduct.name?.ar}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Description (EN):</strong>{" "}
+                      {selectedProduct.description?.en}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Description (AR):</strong>{" "}
+                      {selectedProduct.description?.ar}
                     </p>
                   </div>
                 </Col>
@@ -326,50 +339,18 @@ const ProductsPage = () => {
                       <>
                         <p className="mb-2">
                           <strong>القياس:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return features.dimensions || "Not specified";
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.dimensions?.ar} /{" "}
+                          {selectedProduct.features.dimensions?.en}
                         </p>
                         <p className="mb-2">
                           <strong>عدد الصفحات:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return features.pageCount || "Not specified";
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.pageCount?.ar} /{" "}
+                          {selectedProduct.features.pageCount?.en}
                         </p>
                         <p className="mb-2">
                           <strong>مكان النشر:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return (
-                                features.publishingPlace || "Not specified"
-                              );
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.publishingPlace?.ar} /{" "}
+                          {selectedProduct.features.publishingPlace?.en}
                         </p>
                       </>
                     )}
@@ -379,48 +360,18 @@ const ProductsPage = () => {
                       <>
                         <p className="mb-2">
                           <strong>رقم الطبعة:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return features.edition || "Not specified";
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.edition?.ar} /{" "}
+                          {selectedProduct.features.edition?.en}
                         </p>
                         <p className="mb-2">
                           <strong>تاريخ الطبع:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return features.publishDate || "Not specified";
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.publishDate?.ar} /{" "}
+                          {selectedProduct.features.publishDate?.en}
                         </p>
                         <p className="mb-2">
                           <strong>لغة النشر:</strong>{" "}
-                          {(() => {
-                            try {
-                              const features = Array.isArray(
-                                selectedProduct.features
-                              )
-                                ? JSON.parse(selectedProduct.features[0])
-                                : JSON.parse(selectedProduct.features);
-                              return features.language || "Not specified";
-                            } catch (e) {
-                              return "Not specified";
-                            }
-                          })()}
+                          {selectedProduct.features.language?.ar} /{" "}
+                          {selectedProduct.features.language?.en}
                         </p>
                       </>
                     )}
@@ -442,7 +393,7 @@ const ProductsPage = () => {
                       <SwiperSlide key={index}>
                         <div className="slider-image-container">
                           <img
-                            src={`http://localhost:5000/productsImages/${image}`}
+                            src={`https://lin-server.onrender.com/productsImages/${image}`}
                             alt={`Product ${index + 1}`}
                             className="img-fluid rounded"
                             style={{
@@ -493,7 +444,7 @@ const ProductsPage = () => {
                   {selectedProduct && selectedProduct.mainImage && (
                     <div className="mb-3 image-preview-container">
                       <img
-                        src={`http://localhost:5000/productsImages/${selectedProduct.mainImage}`}
+                        src={`https://lin-server.onrender.com/productsImages/${selectedProduct.mainImage}`}
                         alt="Current main image"
                         className="img-preview rounded"
                       />
@@ -522,7 +473,7 @@ const ProductsPage = () => {
                           <SwiperSlide key={index}>
                             <div className="image-preview-container">
                               <img
-                                src={`http://localhost:5000/productsImages/${image}`}
+                                src={`https://lin-server.onrender.com/productsImages/${image}`}
                                 alt={`Slider ${index}`}
                                 className="img-preview rounded"
                               />
@@ -545,106 +496,159 @@ const ProductsPage = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Title</Form.Label>
+                  <Form.Label className="fw-bold">Title (English)</Form.Label>
                   <Form.Control
                     name="title"
                     placeholder="Enter product title"
-                    value={newProduct.title}
-                    onChange={handleInputChange}
+                    value={newProduct.title.en}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        title: { ...newProduct.title, en: e.target.value },
+                      })
+                    }
                   />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">Name</Form.Label>
+                  <Form.Label className="fw-bold">Title (Arabic)</Form.Label>
+                  <Form.Control
+                    name="title"
+                    placeholder="Enter product title"
+                    value={newProduct.title.ar}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        title: { ...newProduct.title, ar: e.target.value },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Name (English)</Form.Label>
                   <Form.Control
                     name="name"
                     placeholder="Enter product name"
-                    value={newProduct.name}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="description"
-                placeholder="Enter product description"
-                value={newProduct.description}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">القياس</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newProduct.features.dimensions}
+                    value={newProduct.name.en}
                     onChange={(e) =>
-                      handleFeatureChange("dimensions", e.target.value)
-                    }
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">عدد الصفحات</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newProduct.features.pageCount}
-                    onChange={(e) =>
-                      handleFeatureChange("pageCount", e.target.value)
-                    }
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">مكان النشر</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newProduct.features.publishingPlace}
-                    onChange={(e) =>
-                      handleFeatureChange("publishingPlace", e.target.value)
+                      setNewProduct({
+                        ...newProduct,
+                        name: { ...newProduct.name, en: e.target.value },
+                      })
                     }
                   />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">رقم الطبعة</Form.Label>
+                  <Form.Label className="fw-bold">Name (Arabic)</Form.Label>
                   <Form.Control
-                    type="text"
-                    value={newProduct.features.edition}
+                    name="name"
+                    placeholder="Enter product name"
+                    value={newProduct.name.ar}
                     onChange={(e) =>
-                      handleFeatureChange("edition", e.target.value)
-                    }
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">تاريخ الطبع</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={newProduct.features.publishDate}
-                    onChange={(e) =>
-                      handleFeatureChange("publishDate", e.target.value)
-                    }
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-bold">لغة النشر</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newProduct.features.language}
-                    onChange={(e) =>
-                      handleFeatureChange("language", e.target.value)
+                      setNewProduct({
+                        ...newProduct,
+                        name: { ...newProduct.name, ar: e.target.value },
+                      })
                     }
                   />
                 </Form.Group>
               </Col>
             </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">
+                    Description (English)
+                  </Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="description"
+                    placeholder="Enter product description"
+                    value={newProduct.description.en}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: {
+                          ...newProduct.description,
+                          en: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">
+                    Description (Arabic)
+                  </Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    name="description"
+                    placeholder="Enter product description"
+                    value={newProduct.description.ar}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: {
+                          ...newProduct.description,
+                          ar: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="features-section mt-4">
+              <h5 className="mb-3">Product Features</h5>
+
+              {Object.entries({
+                dimensions: "Dimensions / القياس",
+                pageCount: "Page Count / عدد الصفحات",
+                publishingPlace: "Publishing Place / مكان النشر",
+                edition: "Edition / رقم الطبعة",
+                publishDate: "Publish Date / تاريخ الطبع",
+                language: "Language / لغة النشر",
+              }).map(([key, label]) => (
+                <div key={key} className="mb-3">
+                  <Form.Label>{label}</Form.Label>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Control
+                        placeholder="English"
+                        value={newProduct.features[key].en}
+                        onChange={(e) =>
+                          handleFeatureChange(key, "en", e.target.value)
+                        }
+                      />
+                    </Col>
+                    <Col md={6}>
+                      <Form.Control
+                        placeholder="Arabic"
+                        value={newProduct.features[key].ar}
+                        onChange={(e) =>
+                          handleFeatureChange(key, "ar", e.target.value)
+                        }
+                        dir="rtl"
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ))}
+            </div>
           </Form>
         </Modal.Body>
         <Modal.Footer className="border-top-0 bg-light">
@@ -660,9 +664,7 @@ const ProductsPage = () => {
       </Modal>
     </Container>
   );
-};
-
-export default ProductsPage;
+}
 
 // Add this CSS to your stylesheet
 const styles = `

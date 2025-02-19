@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // If using React Router
+import { useParams, useNavigate } from "react-router-dom";
+import { Container, Row, Col, Button, Card } from "react-bootstrap";
+import { useTranslation } from "../contexts/LanguageContext";
 import axios from "axios";
+
 export default function CourseDetails() {
   const { id } = useParams();
-  const [course, setCourse] = useState([]);
+  s;
+  const navigate = useNavigate();
+  const t = useTranslation();
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const response = await fetch(
+        const response = await axios.get(
           `http://localhost:5000/api/getCourse/${id}`
         );
-        if (response.status != 200) {
-          navigate("/404");
-        } else if (!response.ok) {
-          throw new Error("Failed to fetch course");
-        }
-        const course = await response.json();
-        setCourse(course);
+        console.log("Course data:", response.data);
+        setCourse(response.data);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching course:", error);
       } finally {
         setLoading(false);
       }
@@ -30,99 +30,128 @@ export default function CourseDetails() {
     fetchCourse();
   }, [id]);
 
-  if (loading) return <p>Loading course details...</p>;
-  if (error) return <p>{error}</p>;
-  console.log(`http://localhost:5000/courseImages/${course.courseMainImage}`);
-  return (
-    <div className="container mt-3">
-      <div>
-        <a href="javascript:history.back()" class="btn btn-primary">
-          <i class="bi bi-arrow-left"></i> Back
-        </a>
-      </div>
-      <h1 className="d-flex justify-content-center mb-2">
-        {course.courseField}
-      </h1>
-      <h3 className="d-flex justify-content-center mt-1 mb-3">
-        {course.mainTitle}
-      </h3>
-      <div className="mt-2">
-        <h2 className="mt-4 mb-3 ">Main Image</h2>
-        <div className="d-flex justify-content-center">
-          {course.courseMainImage && (
-            <img
-              src={`http://localhost:5000/courseImages/${course.courseMainImage}`}
-              onError={(e) => {
-                e.target.src = `http://localhost:5000/others/${course.courseMainImage}`;
-              }}
-              alt="Student"
-              width="350"
-            />
-          )}
-        </div>
-      </div>
-      <h2 className="mt-4 mb-3 ">Lessons</h2>
-      <div className="d-flex gap-5 flex-wrap justify-content-center">
-        {course.videos.map((video, index) => {
-          const parsedVideo =
-            typeof video === "string" ? JSON.parse(video) : video;
-          return (
-            <div key={index}>
-              <h3>{parsedVideo.title}</h3>
-              <iframe
-                width="500"
-                height="300"
-                src={parsedVideo.url}
-                title={parsedVideo.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-          );
-        })}
-      </div>
-      <h2 className="mt-4 mb-3 ">Games</h2>
-      <div className="d-flex gap-5 flex-wrap justify-content-center mt-5 mb-3">
-        {course.games.map((Game, index) => {
-          const parsedGame = typeof Game === "string" ? JSON.parse(Game) : Game;
-          return (
-            <div key={index}>
-              <h3>{parsedGame.title}</h3>
-              <iframe
-                src={parsedGame.url}
-                title={parsedGame.title}
-                width={500}
-                height={300}
-                className="mediaQuery"
-                allowFullScreen
-              ></iframe>
-            </div>
-          );
-        })}
-      </div>
-      <h2 className="mt-4 mb-3 ">Lesson Images</h2>
+  if (loading)
+    return <div className="text-center p-5">{t("common.loading")}</div>;
+  if (!course)
+    return <div className="text-center p-5">{t("courses.notFound")}</div>;
 
-      {course.courseImages && course.courseImages.length > 0 && (
-        <div className="d-flex justify-content-center flex-wrap mb-5">
-          {course.courseImages.map((image, index) => (
-            <div className="d-flex align-items-center ">
+  return (
+    <Container className="py-4">
+      <Button variant="primary" onClick={() => navigate(-1)} className="mb-4">
+        <i className="fas fa-arrow-left me-2"></i>
+        {t("common.back")}
+      </Button>
+
+      <Card className="shadow-sm">
+        <Card.Header>
+          <Row>
+            <Col>
+              <h2>{course.mainTitle?.en || ""}</h2>
+              <h2 dir="rtl" className="text-end">
+                {course.mainTitle?.ar || ""}
+              </h2>
+            </Col>
+          </Row>
+        </Card.Header>
+
+        <Card.Body>
+          <Row className="mb-4">
+            <Col md={6}>
+              <Card>
+                <Card.Body>
+                  <h4>{t("courses.courseField")}</h4>
+                  <p>{course.courseField?.en || ""}</p>
+                  <p dir="rtl">{course.courseField?.ar || ""}</p>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={6}>
+              <Card>
+                <Card.Body>
+                  <h4>{t("courses.description")}</h4>
+                  <p>{course.description?.en || ""}</p>
+                  <p dir="rtl">{course.description?.ar || ""}</p>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          {course.courseMainImage && (
+            <div className="text-center mb-4">
+              <h4>{t("courses.mainImage")}</h4>
               <img
-                key={index}
-                src={`http://localhost:5000/courseImages/${image}`}
-                onError={(e) => {
-                  e.target.src = `http://localhost:5000/others/${image}`;
-                }}
-                alt={`Image ${index + 1}`}
-                width="350"
-                style={{ margin: "10px" }} // Optional styling
+                src={`http://localhost:5000/courseImages/${course.courseMainImage}`}
+                alt={course.mainTitle?.en}
+                className="img-fluid rounded"
+                style={{ maxHeight: "400px" }}
               />
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* Render other details like videos, images, etc. */}
-    </div>
+          <h4 className="mb-3">{t("courses.videos.title")}</h4>
+          <Row className="mb-4">
+            {course.videos?.map((video, index) => (
+              <Col md={6} key={index} className="mb-3">
+                <Card>
+                  <Card.Body>
+                    <h5>{video.title?.en || ""}</h5>
+                    <h5 dir="rtl">{video.title?.ar || ""}</h5>
+                    <div className="ratio ratio-16x9 mt-2">
+                      <iframe
+                        src={video.url}
+                        title={video.title?.en || ""}
+                        allowFullScreen
+                        className="rounded"
+                      />
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          <h4 className="mb-3">{t("courses.games.title")}</h4>
+          <Row className="mb-4">
+            {course.games?.map((game, index) => (
+              <Col md={6} key={index} className="mb-3">
+                <Card>
+                  <Card.Body>
+                    <h5>{game.title?.en || ""}</h5>
+                    <h5 dir="rtl">{game.title?.ar || ""}</h5>
+                    <div className="ratio ratio-16x9 mt-2">
+                      <iframe
+                        src={game.url}
+                        title={game.title?.en || ""}
+                        allowFullScreen
+                        className="rounded"
+                      />
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+
+          {course.courseImages && course.courseImages.length > 0 && (
+            <>
+              <h4 className="mb-3">{t("courses.courseImages")}</h4>
+              <Row>
+                {course.courseImages.map((image, index) => (
+                  <Col md={4} key={index} className="mb-3">
+                    <Card>
+                      <Card.Img
+                        src={`http://localhost:5000/courseImages/${image}`}
+                        alt={`Course image ${index + 1}`}
+                        className="img-fluid"
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </>
+          )}
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }

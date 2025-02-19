@@ -12,7 +12,7 @@ export default function Login() {
     setError(""); // Clear previous errors
     setLoading(true); // Show loading state
 
-    fetch("http://localhost:5000/api/users/signIn", {
+    fetch("https://lin-server.onrender.com/api/users/signIn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Table, Modal, Form } from "react-bootstrap";
+import { Button, Table, Modal, Form, Row, Col } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "../contexts/LanguageContext";
 
 export default function CoursesPage() {
+  const t = useTranslation();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [lessons, setLessons] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -11,22 +15,22 @@ export default function CoursesPage() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false); // State for view modal
   const [editingCourse, setEditingCourse] = useState(null);
-  const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [newVideoTitle, setNewVideoTitle] = useState({ en: "", ar: "" });
   const [newVideoUrl, setNewVideoUrl] = useState("");
-  const [newGameTitle, setNewGameTitle] = useState("");
+  const [newGameTitle, setNewGameTitle] = useState({ en: "", ar: "" });
   const [newGameUrl, setNewGameUrl] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const [newCourse, setNewCourse] = useState({
-    mainImage: null,
-    mainTitle: "",
-    courseField: "",
-    videos: [],
-    videosTitles: [],
-    games: [],
-    gameTitles: [],
+    courseMainImage: null,
     courseImages: [],
+    mainTitle: { en: "", ar: "" },
+    courseField: { en: "", ar: "" },
+    description: { en: "", ar: "" },
+    videos: [],
+    games: [],
   });
+
   const [newCategory, setNewCategory] = useState({
     categoryTitle: "",
     categoryImage: null,
@@ -90,84 +94,105 @@ export default function CoursesPage() {
       console.error("Error fetching lessons:", error);
     }
   };
-  const handleAddCourse = async () => {
-    const formData = new FormData();
-    if (editingCourse) {
-      formData.append("id", editingCourse.id);
-    }
-    if (newCourse.mainImage) {
-      formData.append("courseMainImage", newCourse.mainImage);
-    } else {
-      console.error("Main image is missing!");
-    }
-    formData.append("mainTitle", newCourse.mainTitle);
-    formData.append("courseField", newCourse.courseField);
-    // Appending videos as JSON strings
-    if (newCourse.videos && newCourse.videos.length > 0) {
-      newCourse.videos.forEach((video) => {
-        formData.append("videos", JSON.stringify(video)); // Convert each object to a JSON string
-      });
-    }
-
-    // Appending games as JSON strings
-    if (newCourse.games && newCourse.games.length > 0) {
-      newCourse.games.forEach((game) => {
-        formData.append("games", JSON.stringify(game)); // Convert each object to a JSON string
-      });
-    }
-
-    if (newCourse.courseImages && newCourse.courseImages.length > 0) {
-      newCourse.courseImages.forEach((image, index) => {
-        formData.append(`courseImages`, image); // Append each image
-      });
-    } else {
-      console.error("No course images selected!");
-    }
+  const handleSaveCourse = async () => {
     try {
-      const response = editingCourse
-        ? await axios.put(
-            `http://localhost:5000/api/updateCourse/${editingCourse._id}`,
-            formData,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          )
-        : await axios.post("http://localhost:5000/api/addCourse", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-      console.log("Response from server:", response.data);
+      const formData = new FormData();
+
+      // Handle file uploads with proper field names
+      if (newCourse.mainImage) {
+        formData.append("courseMainImage", newCourse.mainImage);
+      }
+
+      if (newCourse.courseImages?.length > 0) {
+        newCourse.courseImages.forEach((image) => {
+          formData.append("courseImages", image);
+        });
+      }
+
+      // Append multilingual fields
+      formData.append("mainTitle_en", newCourse.mainTitle.en);
+      formData.append("mainTitle_ar", newCourse.mainTitle.ar);
+      formData.append("courseField_en", newCourse.courseField.en);
+      formData.append("courseField_ar", newCourse.courseField.ar);
+      formData.append("description_en", newCourse.description.en);
+      formData.append("description_ar", newCourse.description.ar);
+
+      // Format videos and games properly before sending
+      const formattedVideos = newCourse.videos.map((video) => ({
+        url: video.url,
+        title: {
+          en: video.title.en,
+          ar: video.title.ar,
+        },
+      }));
+
+      const formattedGames = newCourse.games.map((game) => ({
+        url: game.url,
+        title: {
+          en: game.title.en,
+          ar: game.title.ar,
+        },
+      }));
+
+      formData.append("videos", JSON.stringify(formattedVideos));
+      formData.append("games", JSON.stringify(formattedGames));
+
+      console.log("Submitting course data:", Object.fromEntries(formData));
+
+      const url = editingCourse
+        ? `http://localhost:5000/api/updateCourse/${editingCourse._id}`
+        : "http://localhost:5000/api/addCourse";
+
+      const response = await axios.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("Server response:", response.data);
+
       fetchLessons(activeCategory);
+      setShowCourseModal(false);
       setNewCourse({
         mainImage: null,
-        mainTitle: "",
-        courseField: "",
-        videos: [],
-        videosTitles: [],
-        games: [],
-        gameTitles: [],
         courseImages: [],
+        mainTitle: { en: "", ar: "" },
+        courseField: { en: "", ar: "" },
+        description: { en: "", ar: "" },
+        videos: [],
+        games: [],
       });
-      setEditingCourse(null);
-      setShowCourseModal(false);
+
       Swal.fire({
         title: "Success!",
         text: `Course ${editingCourse ? "updated" : "added"} successfully!`,
         icon: "success",
-        confirmButtonText: "OK",
       });
     } catch (error) {
-      console.error(
-        `Error ${editingCourse ? "updating" : "adding"} course:`,
-        error.response?.data || error
-      );
+      console.error("Error saving course:", error);
       Swal.fire({
         title: "Error!",
-        text: `Failed to ${
-          editingCourse ? "update" : "add"
-        } course. Check the console for details.`,
+        text: "Failed to save course",
         icon: "error",
-        confirmButtonText: "OK",
       });
     }
   };
+
+  const handleFileChange = (e, field) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (field === "mainImage") {
+      setNewCourse((prev) => ({
+        ...prev,
+        mainImage: files[0],
+      }));
+    } else if (field === "courseImages") {
+      setNewCourse((prev) => ({
+        ...prev,
+        courseImages: Array.from(files),
+      }));
+    }
+  };
+
   const handleEditCourse = (course) => {
     setEditingCourse(course);
     setNewCourse({
@@ -245,9 +270,9 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4" dir="rtl">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="fw-bold">Courses Management</h1>
+        <h1 className="fw-bold">{t("courses.title")}</h1>
         <div className="d-flex gap-2">
           <Button
             variant="success"
@@ -255,7 +280,7 @@ export default function CoursesPage() {
             onClick={() => setShowCategoryModal(true)}
           >
             <i className="fas fa-folder-plus"></i>
-            Add Category
+            {t("courses.addCategory")}
           </Button>
           <Button
             variant="primary"
@@ -263,7 +288,7 @@ export default function CoursesPage() {
             onClick={() => setShowCourseModal(true)}
           >
             <i className="fas fa-plus-circle"></i>
-            Add Course
+            {t("courses.addCourse")}
           </Button>
         </div>
       </div>
@@ -304,9 +329,15 @@ export default function CoursesPage() {
           </thead>
           <tbody>
             {lessons.map((lesson) => (
-              <tr key={lesson.id}>
-                <td>{lesson.mainTitle}</td>
-                <td>{lesson.courseField}</td>
+              <tr key={lesson._id || lesson.id}>
+                <td>
+                  <div>{lesson.mainTitle?.en || ""}</div>
+                  <div dir="rtl">{lesson.mainTitle?.ar || ""}</div>
+                </td>
+                <td>
+                  <div>{lesson.courseField?.en || ""}</div>
+                  <div dir="rtl">{lesson.courseField?.ar || ""}</div>
+                </td>
                 <td>
                   <div className="d-flex justify-content-center gap-2">
                     <Button
@@ -331,7 +362,7 @@ export default function CoursesPage() {
                       variant="outline-info"
                       size="sm"
                       className="d-flex align-items-center gap-1"
-                      href={`course/${lesson._id}`}
+                      onClick={() => navigate(`/course/${lesson._id}`)}
                     >
                       <i className="fas fa-eye"></i>
                       View
@@ -360,7 +391,7 @@ export default function CoursesPage() {
           <Form
             onSubmit={(e) => {
               e.preventDefault();
-              handleAddCourse();
+              handleSaveCourse();
             }}
           >
             <Form.Group className="mb-3">
@@ -373,36 +404,152 @@ export default function CoursesPage() {
                 }
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Main Title</Form.Label>
-              <Form.Control
-                type="text"
-                value={newCourse.mainTitle}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, mainTitle: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Course field</Form.Label>
-              <Form.Control
-                type="text"
-                value={newCourse.courseField}
-                onChange={(e) =>
-                  setNewCourse({ ...newCourse, courseField: e.target.value })
-                }
-              />
-            </Form.Group>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Main Title (English)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newCourse.mainTitle.en}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        mainTitle: {
+                          ...newCourse.mainTitle,
+                          en: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Main Title (Arabic)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newCourse.mainTitle.ar}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        mainTitle: {
+                          ...newCourse.mainTitle,
+                          ar: e.target.value,
+                        },
+                      })
+                    }
+                    dir="rtl"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Course Field (English)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newCourse.courseField.en}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        courseField: {
+                          ...newCourse.courseField,
+                          en: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Course Field (Arabic)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newCourse.courseField.ar}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        courseField: {
+                          ...newCourse.courseField,
+                          ar: e.target.value,
+                        },
+                      })
+                    }
+                    dir="rtl"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Description (English)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={newCourse.description.en}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        description: {
+                          ...newCourse.description,
+                          en: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Description (Arabic)</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={newCourse.description.ar}
+                    onChange={(e) =>
+                      setNewCourse({
+                        ...newCourse,
+                        description: {
+                          ...newCourse.description,
+                          ar: e.target.value,
+                        },
+                      })
+                    }
+                    dir="rtl"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
             <Form.Group className="mb-3">
               <Form.Label>Add Videos</Form.Label>
-              <div
-                style={{ display: "flex", gap: "10px", alignItems: "center" }}
-              >
+              <div className="d-flex gap-2 mb-3">
                 <Form.Control
                   type="text"
-                  placeholder="Video Title"
-                  value={newVideoTitle}
-                  onChange={(e) => setNewVideoTitle(e.target.value)}
+                  placeholder="Video Title (English)"
+                  value={newVideoTitle.en || ""}
+                  onChange={(e) =>
+                    setNewVideoTitle((prev) => ({
+                      ...prev,
+                      en: e.target.value,
+                    }))
+                  }
+                />
+                <Form.Control
+                  type="text"
+                  placeholder="Video Title (Arabic)"
+                  value={newVideoTitle.ar || ""}
+                  onChange={(e) =>
+                    setNewVideoTitle((prev) => ({
+                      ...prev,
+                      ar: e.target.value,
+                    }))
+                  }
+                  dir="rtl"
                 />
                 <Form.Control
                   type="url"
@@ -413,15 +560,21 @@ export default function CoursesPage() {
                 <Button
                   variant="success"
                   onClick={() => {
-                    if (newVideoTitle && newVideoUrl) {
+                    if (newVideoTitle.en && newVideoTitle.ar && newVideoUrl) {
                       setNewCourse((prev) => ({
                         ...prev,
                         videos: [
                           ...prev.videos,
-                          { title: newVideoTitle, url: newVideoUrl },
+                          {
+                            title: {
+                              en: newVideoTitle.en,
+                              ar: newVideoTitle.ar,
+                            },
+                            url: newVideoUrl,
+                          },
                         ],
                       }));
-                      setNewVideoTitle("");
+                      setNewVideoTitle({ en: "", ar: "" });
                       setNewVideoUrl("");
                     }
                   }}
@@ -429,60 +582,60 @@ export default function CoursesPage() {
                   Add
                 </Button>
               </div>
-              <ul className="d-flex flex-column gap-3 mt-3">
-                <li className="d-flex justify-content-around gap-5">
-                  <h6>Video Title</h6>
-                  <h6>Video URL</h6>
-                  <h6>Actions</h6>
-                </li>
-                {newCourse.videos.map((video, index) => {
-                  const parsedVideo =
-                    typeof video === "string" ? JSON.parse(video) : video;
-                  return (
-                    <div className="d-flex gap-3" key={index}>
-                      <Form.Control
-                        type="text"
-                        placeholder="Video Title"
-                        value={parsedVideo.title}
-                        // onChange={(e) => setNewVideoTitle(e.target.value)}
-                        disabled
-                      />
-                      <Form.Control
-                        type="text"
-                        placeholder="Video URL"
-                        value={parsedVideo.url}
-                        // onChange={(e) => setNewVideoTitle(e.target.value)}
-                        disabled
-                      />
-                      {/* <strong>{video.title}:</strong> {video.url}{" "} */}
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() =>
-                          setNewCourse((prev) => ({
-                            ...prev,
-                            videos: prev.videos.filter((_, i) => i !== index),
-                          }))
-                        }
-                      >
-                        Remove
-                      </Button>
+
+              {/* Videos list */}
+              <div className="videos-list mt-3">
+                {newCourse.videos.map((video, index) => (
+                  <div
+                    key={index}
+                    className="d-flex gap-2 mb-2 align-items-center"
+                  >
+                    <div className="flex-grow-1">
+                      <div>{video.title?.en || ""}</div>
+                      <div dir="rtl">{video.title?.ar || ""}</div>
                     </div>
-                  );
-                })}
-              </ul>
+                    <div className="flex-grow-1">{video.url}</div>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() =>
+                        setNewCourse((prev) => ({
+                          ...prev,
+                          videos: prev.videos.filter((_, i) => i !== index),
+                        }))
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </Form.Group>
-            {/* dddddddddddddddddddddddddddddddddddddddddddddddd */}
             <Form.Group className="mb-3">
               <Form.Label>Add Games</Form.Label>
-              <div
-                style={{ display: "flex", gap: "10px", alignItems: "center" }}
-              >
+              <div className="d-flex gap-2 mb-3">
                 <Form.Control
                   type="text"
-                  placeholder="Game Title"
-                  value={newGameTitle}
-                  onChange={(e) => setNewGameTitle(e.target.value)}
+                  placeholder="Game Title (English)"
+                  value={newGameTitle.en || ""}
+                  onChange={(e) =>
+                    setNewGameTitle((prev) => ({
+                      ...prev,
+                      en: e.target.value,
+                    }))
+                  }
+                />
+                <Form.Control
+                  type="text"
+                  placeholder="Game Title (Arabic)"
+                  value={newGameTitle.ar || ""}
+                  onChange={(e) =>
+                    setNewGameTitle((prev) => ({
+                      ...prev,
+                      ar: e.target.value,
+                    }))
+                  }
+                  dir="rtl"
                 />
                 <Form.Control
                   type="url"
@@ -493,15 +646,21 @@ export default function CoursesPage() {
                 <Button
                   variant="success"
                   onClick={() => {
-                    if (newGameTitle && newGameUrl) {
+                    if (newGameTitle.en && newGameTitle.ar && newGameUrl) {
                       setNewCourse((prev) => ({
                         ...prev,
                         games: [
                           ...prev.games,
-                          { title: newGameTitle, url: newGameUrl },
+                          {
+                            title: {
+                              en: newGameTitle.en,
+                              ar: newGameTitle.ar,
+                            },
+                            url: newGameUrl,
+                          },
                         ],
                       }));
-                      setNewGameTitle("");
+                      setNewGameTitle({ en: "", ar: "" });
                       setNewGameUrl("");
                     }
                   }}
@@ -509,47 +668,34 @@ export default function CoursesPage() {
                   Add
                 </Button>
               </div>
-              <ul className="d-flex flex-column gap-3 mt-3">
-                <li className="d-flex justify-content-around gap-5">
-                  <h6>Game Title</h6>
-                  <h6>Game URL</h6>
-                  <h6>Actions</h6>
-                </li>
-                {newCourse.games.map((game, index) => {
-                  const parsedGame =
-                    typeof game === "string" ? JSON.parse(game) : game;
-                  return (
-                    <div className="d-flex gap-3" key={index}>
-                      <Form.Control
-                        type="text"
-                        placeholder="Game Title"
-                        value={parsedGame.title}
-                        // onChange={(e) => setNewVideoTitle(e.target.value)}
-                        disabled
-                      />
-                      <Form.Control
-                        type="text"
-                        placeholder="Game URL"
-                        value={parsedGame.url}
-                        // onChange={(e) => setNewVideoTitle(e.target.value)}
-                        disabled
-                      />
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() =>
-                          setNewCourse((prev) => ({
-                            ...prev,
-                            games: prev.games.filter((_, i) => i !== index),
-                          }))
-                        }
-                      >
-                        Remove
-                      </Button>
+
+              {/* Games list */}
+              <div className="games-list mt-3">
+                {newCourse.games.map((game, index) => (
+                  <div
+                    key={index}
+                    className="d-flex gap-2 mb-2 align-items-center"
+                  >
+                    <div className="flex-grow-1">
+                      <div>{game.title?.en || ""}</div>
+                      <div dir="rtl">{game.title?.ar || ""}</div>
                     </div>
-                  );
-                })}
-              </ul>
+                    <div className="flex-grow-1">{game.url}</div>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() =>
+                        setNewCourse((prev) => ({
+                          ...prev,
+                          games: prev.games.filter((_, i) => i !== index),
+                        }))
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Course Images</Form.Label>
@@ -565,6 +711,60 @@ export default function CoursesPage() {
                 }
               />
             </Form.Group>
+            {/* <Form.Group className="mb-4">
+              <h5 className="mb-3">Course Features</h5>
+              {Object.entries({
+                dimensions: "Dimensions / القياس",
+                pageCount: "Page Count / عدد الصفحات",
+                publishingPlace: "Publishing Place / مكان النشر",
+                edition: "Edition / رقم الطبعة",
+                publishDate: "Publish Date / تاريخ الطبع",
+                language: "Language / لغة النشر",
+              }).map(([key, label]) => (
+                <div key={key} className="mb-3">
+                  <Form.Label>{label}</Form.Label>
+                  <Row>
+                   <Col md={6}>
+                      <Form.Control
+                        placeholder="English"
+                        value={newCourse.features[key].en}
+                        onChange={(e) =>
+                          setNewCourse((prev) => ({
+                            ...prev,
+                            features: {
+                              ...prev.features,
+                              [key]: {
+                                ...prev.features[key],
+                                en: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                      />
+                    </Col> 
+                    <Col md={6}>
+                      <Form.Control
+                        placeholder="Arabic"
+                        value={newCourse.features[key].ar}
+                        onChange={(e) =>
+                          setNewCourse((prev) => ({
+                            ...prev,
+                            features: {
+                              ...prev.features,
+                              [key]: {
+                                ...prev.features[key],
+                                ar: e.target.value,
+                              },
+                            },
+                          }))
+                        }
+                        dir="rtl"
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ))}
+            </Form.Group> */}
             <Button variant="primary" type="submit">
               {editingCourse ? "Update Course" : "Add Course"}
             </Button>
