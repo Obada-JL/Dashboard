@@ -45,9 +45,7 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        "https://lin-server.onrender.com/api/getProducts"
-      );
+      const response = await axios.get("http://localhost:5000/api/getProducts");
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -129,18 +127,14 @@ const ProductsPage = () => {
 
       if (selectedProduct) {
         await axios.put(
-          `https://lin-server.onrender.com/api/updateProduct/${selectedProduct._id}`,
+          `http://localhost:5000/api/updateProduct/${selectedProduct._id}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
       } else {
-        await axios.post(
-          "https://lin-server.onrender.com/api/addProduct",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+        await axios.post("http://localhost:5000/api/addProduct", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
       fetchProducts();
@@ -153,9 +147,7 @@ const ProductsPage = () => {
   // Delete Product
   const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(
-        `https://lin-server.onrender.com/api/deleteProduct/${id}`
-      );
+      await axios.delete(`http://localhost:5000/api/deleteProduct/${id}`);
       fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -248,7 +240,7 @@ const ProductsPage = () => {
                 <Card.Img
                   variant="top"
                   //   src={product.mainImage}
-                  src={`https://lin-server.onrender.com/productsImages/${product.mainImage}`}
+                  src={`http://localhost:5000/productsImages/${product.mainImage}`}
                   alt={product.title}
                   style={{ height: "200px", objectFit: "cover" }}
                 />
@@ -297,7 +289,7 @@ const ProductsPage = () => {
                       style={{ width: "100%", height: "200px" }}
                     >
                       <img
-                        src={`https://lin-server.onrender.com/productsImages/${selectedProduct.mainImage}`}
+                        src={`http://localhost:5000/productsImages/${selectedProduct.mainImage}`}
                         alt={selectedProduct.title}
                         className="img-fluid rounded"
                         style={{
@@ -450,7 +442,7 @@ const ProductsPage = () => {
                       <SwiperSlide key={index}>
                         <div className="slider-image-container">
                           <img
-                            src={`https://lin-server.onrender.com/productsImages/${image}`}
+                            src={`http://localhost:5000/productsImages/${image}`}
                             alt={`Product ${index + 1}`}
                             className="img-fluid rounded"
                             style={{
@@ -501,7 +493,7 @@ const ProductsPage = () => {
                   {selectedProduct && selectedProduct.mainImage && (
                     <div className="mb-3 image-preview-container">
                       <img
-                        src={`https://lin-server.onrender.com/productsImages/${selectedProduct.mainImage}`}
+                        src={`http://localhost:5000/productsImages/${selectedProduct.mainImage}`}
                         alt="Current main image"
                         className="img-preview rounded"
                       />
@@ -530,7 +522,7 @@ const ProductsPage = () => {
                           <SwiperSlide key={index}>
                             <div className="image-preview-container">
                               <img
-                                src={`https://lin-server.onrender.com/productsImages/${image}`}
+                                src={`http://localhost:5000/productsImages/${image}`}
                                 alt={`Slider ${index}`}
                                 className="img-preview rounded"
                               />

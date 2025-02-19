@@ -11,7 +11,7 @@ export default function CourseDetails() {
     const fetchCourse = async () => {
       try {
         const response = await fetch(
-          `https://lin-server.onrender.com/api/getCourse/${id}`
+          `http://localhost:5000/api/getCourse/${id}`
         );
         if (response.status != 200) {
           navigate("/404");
@@ -32,9 +32,7 @@ export default function CourseDetails() {
 
   if (loading) return <p>Loading course details...</p>;
   if (error) return <p>{error}</p>;
-  console.log(
-    `https://lin-server.onrender.com/courseImages/${course.courseMainImage}`
-  );
+  console.log(`http://localhost:5000/courseImages/${course.courseMainImage}`);
   return (
     <div className="container mt-3">
       <div>
@@ -53,9 +51,9 @@ export default function CourseDetails() {
         <div className="d-flex justify-content-center">
           {course.courseMainImage && (
             <img
-              src={`https://lin-server.onrender.com/courseImages/${course.courseMainImage}`}
+              src={`http://localhost:5000/courseImages/${course.courseMainImage}`}
               onError={(e) => {
-                e.target.src = `https://lin-server.onrender.com/others/${course.courseMainImage}`;
+                e.target.src = `http://localhost:5000/others/${course.courseMainImage}`;
               }}
               alt="Student"
               width="350"
@@ -111,9 +109,9 @@ export default function CourseDetails() {
             <div className="d-flex align-items-center ">
               <img
                 key={index}
-                src={`https://lin-server.onrender.com/courseImages/${image}`}
+                src={`http://localhost:5000/courseImages/${image}`}
                 onError={(e) => {
-                  e.target.src = `https://lin-server.onrender.com/others/${image}`;
+                  e.target.src = `http://localhost:5000/others/${image}`;
                 }}
                 alt={`Image ${index + 1}`}
                 width="350"

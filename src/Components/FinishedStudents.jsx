@@ -16,7 +16,7 @@ export default function FinishedStudents() {
     setLoading(true); // Start loading when fetching
     try {
       const response = await axios.get(
-        "https://lin-server.onrender.com/api/getFinishedStudents"
+        "http://localhost:5000/api/getFinishedStudents"
       );
       setStudents(response.data); // Assuming the response is an array of students
     } catch (error) {
@@ -59,7 +59,7 @@ export default function FinishedStudents() {
     try {
       if (modalMode === "add") {
         await axios.post(
-          "https://lin-server.onrender.com/api/addFinishedStudent",
+          "http://localhost:5000/api/addFinishedStudent",
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -67,7 +67,7 @@ export default function FinishedStudents() {
         );
       } else if (modalMode === "edit") {
         await axios.put(
-          `https://lin-server.onrender.com/api/updateFinishedStudent/${selectedStudent._id}`,
+          `http://localhost:5000/api/updateFinishedStudent/${selectedStudent._id}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -95,7 +95,7 @@ export default function FinishedStudents() {
         if (result.isConfirmed) {
           try {
             await axios.delete(
-              `https://lin-server.onrender.com/api/deleteFinishedStudent/${id}`
+              `http://localhost:5000/api/deleteFinishedStudent/${id}`
             );
             fetchStudents(); // Refresh student list
             Swal.fire(translations[language].delete, "", "success");
@@ -277,9 +277,9 @@ export default function FinishedStudents() {
           <div className="d-flex justify-content-center">
             {selectedStudent.finishedStudentImage && (
               <img
-                src={`https://lin-server.onrender.com/studentsImages/${selectedStudent.finishedStudentImage}`}
+                src={`http://localhost:5000/studentsImages/${selectedStudent.finishedStudentImage}`}
                 onError={(e) => {
-                  e.target.src = `https://lin-server.onrender.com/others/${selectedStudent.finishedStudentImage}`;
+                  e.target.src = `http://localhost:5000/others/${selectedStudent.finishedStudentImage}`;
                 }}
                 alt="Student"
                 width="150"
@@ -368,9 +368,9 @@ export default function FinishedStudents() {
                 <label>{t.studentImage}:</label>
                 {selectedStudent.finishedStudentImage && (
                   <img
-                    src={`https://lin-server.onrender.com/studentsImages/${selectedStudent.finishedStudentImage}`}
+                    src={`http://localhost:5000/studentsImages/${selectedStudent.finishedStudentImage}`}
                     onError={(e) => {
-                      e.target.src = `https://lin-server.onrender.com/others/${selectedStudent.finishedStudentImage}`;
+                      e.target.src = `http://localhost:5000/others/${selectedStudent.finishedStudentImage}`;
                     }}
                     alt="Student"
                     width="150"

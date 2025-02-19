@@ -44,7 +44,7 @@ export default function CoursesPage() {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(
-        "https://lin-server.onrender.com/api/getCategorys"
+        "http://localhost:5000/api/getCategorys"
       );
       setCategories(response.data);
       if (response.data.length > 0) {
@@ -57,7 +57,7 @@ export default function CoursesPage() {
 
   // const fetchLessons = async (categoryId) => {
   //   try {
-  //     const response = await axios.get("https://lin-server.onrender.com/api/getCourses");
+  //     const response = await axios.get("http://localhost:5000/api/getCourses");
   //     response.data.forEach((lesson) => {
   //       if (lesson.courseField === categoryId) {
   //         setLessons((prev) => [...prev, lesson]);
@@ -73,9 +73,7 @@ export default function CoursesPage() {
   };
   const fetchLessons = async (categoryId) => {
     try {
-      const response = await axios.get(
-        "https://lin-server.onrender.com/api/getCourses"
-      );
+      const response = await axios.get("http://localhost:5000/api/getCourses");
       if (!categoryId) {
         setLessons(response.data);
         return;
@@ -128,17 +126,13 @@ export default function CoursesPage() {
     try {
       const response = editingCourse
         ? await axios.put(
-            `https://lin-server.onrender.com/api/updateCourse/${editingCourse._id}`,
+            `http://localhost:5000/api/updateCourse/${editingCourse._id}`,
             formData,
             { headers: { "Content-Type": "multipart/form-data" } }
           )
-        : await axios.post(
-            "https://lin-server.onrender.com/api/addCourse",
-            formData,
-            {
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
+        : await axios.post("http://localhost:5000/api/addCourse", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
       console.log("Response from server:", response.data);
       fetchLessons(activeCategory);
       setNewCourse({
@@ -199,7 +193,7 @@ export default function CoursesPage() {
 
     try {
       const response = await axios.post(
-        "https://lin-server.onrender.com/api/addCategory",
+        "http://localhost:5000/api/addCategory",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -231,9 +225,7 @@ export default function CoursesPage() {
 
   const handleDeleteCourse = async (courseId) => {
     try {
-      await axios.delete(
-        `https://lin-server.onrender.com/api/deleteCourse/${courseId}`
-      );
+      await axios.delete(`http://localhost:5000/api/deleteCourse/${courseId}`);
       fetchLessons(activeCategory);
       Swal.fire({
         title: "Success!",

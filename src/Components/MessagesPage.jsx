@@ -11,7 +11,7 @@ const MessagesPage = () => {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          "https://lin-server.onrender.com/api/getMessages"
+          "http://localhost:5000/api/getMessages"
         );
         // Sort messages by timestamp in descending order (newest first)
         const sortedMessages = response.data.sort(
@@ -31,12 +31,9 @@ const MessagesPage = () => {
   // Toggle read/unread status and update the database
   const toggleReadStatus = async (_id, isRead) => {
     try {
-      await axios.put(
-        `https://lin-server.onrender.com/api/updateMessage/${_id}`,
-        {
-          isRead: !isRead,
-        }
-      );
+      await axios.put(`http://localhost:5000/api/updateMessage/${_id}`, {
+        isRead: !isRead,
+      });
 
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
@@ -52,9 +49,7 @@ const MessagesPage = () => {
   // Delete a message and update the state
   const deleteMessage = async (_id) => {
     try {
-      await axios.delete(
-        `https://lin-server.onrender.com/api/deleteMessage/${_id}`
-      );
+      await axios.delete(`http://localhost:5000/api/deleteMessage/${_id}`);
 
       setMessages((prevMessages) =>
         prevMessages.filter((message) => message._id !== _id)

@@ -33,9 +33,7 @@ export default function NewsPage() {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        "https://lin-server.onrender.com/api/getNews"
-      );
+      const response = await axios.get("http://localhost:5000/api/getNews");
       setNews(response.data);
     } catch (error) {
       console.error("Error fetching news:", error);
@@ -58,20 +56,16 @@ export default function NewsPage() {
 
       if (selectedNews) {
         await axios.put(
-          `https://lin-server.onrender.com/api/updateNews/${selectedNews._id}`,
+          `http://localhost:5000/api/updateNews/${selectedNews._id}`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
       } else {
-        await axios.post(
-          "https://lin-server.onrender.com/api/addNews",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+        await axios.post("http://localhost:5000/api/addNews", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
       fetchNews();
@@ -99,9 +93,7 @@ export default function NewsPage() {
         confirmButtonText: "Yes, delete it!",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await axios.delete(
-            `https://lin-server.onrender.com/api/deleteNews/${id}`
-          );
+          await axios.delete(`http://localhost:5000/api/deleteNews/${id}`);
           fetchNews();
           Swal.fire("Deleted!", "News has been deleted.", "success");
         }
@@ -161,7 +153,7 @@ export default function NewsPage() {
               <Card className="h-100 shadow-sm hover-card">
                 <Card.Img
                   variant="top"
-                  src={`https://lin-server.onrender.com/newsImages/${item.newsImage}`}
+                  src={`http://localhost:5000/newsImages/${item.newsImage}`}
                   style={{ height: "200px", objectFit: "cover" }}
                 />
                 <Card.Body>
@@ -252,7 +244,7 @@ export default function NewsPage() {
               {selectedNews && selectedNews.newsImage && (
                 <div className="mb-2">
                   <img
-                    src={`https://lin-server.onrender.com/newsImages/${selectedNews.newsImage}`}
+                    src={`http://localhost:5000/newsImages/${selectedNews.newsImage}`}
                     alt="Current news"
                     style={{ height: "100px" }}
                     className="d-block rounded"

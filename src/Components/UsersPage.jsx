@@ -7,7 +7,7 @@
 //   const [error, setError] = useState(null); // Error state
 //   const token = localStorage.getItem("token");
 //   useEffect(() => {
-//     fetch("https://lin-server.onrender.com/api/users", {
+//     fetch("http://localhost:5000/api/users", {
 //       method: "GET",
 //       headers: { Authorization: `Bearer ${token}` },
 //     })
@@ -39,7 +39,7 @@
 
 //   // Add user
 //   const addUser = (user) => {
-//     fetch("https://lin-server.onrender.com/api/users/register", {
+//     fetch("http://localhost:5000/api/users/register", {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
 //       body: JSON.stringify(user),
@@ -118,7 +118,7 @@
 //   useEffect(() => {
 //     if (!token) return;
 
-//     fetch("https://lin-server.onrender.com/api/users", {
+//     fetch("http://localhost:5000/api/users", {
 //       method: "GET",
 //       headers: { Authorization: `Bearer ${token}` },
 //     })
@@ -149,7 +149,7 @@
 //   // Add user
 //   const addUser = async (user) => {
 //     try {
-//       const response = await fetch("https://lin-server.onrender.com/api/users/register", {
+//       const response = await fetch("http://localhost:5000/api/users/register", {
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
@@ -310,7 +310,7 @@
 //           throw new Error("Token is missing. Please log in again.");
 //         }
 
-//         const response = await fetch("https://lin-server.onrender.com/api/users", {
+//         const response = await fetch("http://localhost:5000/api/users", {
 //           method: "GET",
 //           headers: { Authorization: `Bearer ${token}` },
 //         });
@@ -359,8 +359,8 @@
 //     try {
 //       const url =
 //         modalMode === "add"
-//           ? "https://lin-server.onrender.com/api/users/register"
-//           : `https://lin-server.onrender.com/api/users/${currentUser.id}`;
+//           ? "http://localhost:5000/api/users/register"
+//           : `http://localhost:5000/api/users/${currentUser.id}`;
 
 //       const method = modalMode === "add" ? "POST" : "PUT";
 
@@ -399,7 +399,7 @@
 //   // ✅ Delete User
 //   const handleDeleteUser = async (id) => {
 //     try {
-//       const response = await fetch(`https://lin-server.onrender.com/api/users/${id}`, {
+//       const response = await fetch(`http://localhost:5000/api/users/${id}`, {
 //         method: "DELETE",
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
@@ -577,7 +577,7 @@
 //           throw new Error("Token is missing. Please log in again.");
 //         }
 
-//         const response = await fetch("https://lin-server.onrender.com/api/users", {
+//         const response = await fetch("http://localhost:5000/api/users", {
 //           method: "GET",
 //           headers: { Authorization: `Bearer ${token}` },
 //         });
@@ -626,8 +626,8 @@
 //     try {
 //       const url =
 //         modalMode === "add"
-//           ? "https://lin-server.onrender.com/api/users/register"
-//           : `https://lin-server.onrender.com/api/users/${currentUser.id}`;
+//           ? "http://localhost:5000/api/users/register"
+//           : `http://localhost:5000/api/users/${currentUser.id}`;
 
 //       const method = modalMode === "add" ? "POST" : "PUT";
 
@@ -666,7 +666,7 @@
 //   // ✅ Delete User
 //   const handleDeleteUser = async (id) => {
 //     try {
-//       const response = await fetch(`https://lin-server.onrender.com/api/users/${id}`, {
+//       const response = await fetch(`http://localhost:5000/api/users/${id}`, {
 //         method: "DELETE",
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
@@ -849,13 +849,10 @@ export default function UsersPage() {
           throw new Error("Token is missing. Please log in again.");
         }
 
-        const response = await fetch(
-          "https://lin-server.onrender.com/api/users",
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await fetch("http://localhost:5000/api/users", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch users");
@@ -901,8 +898,8 @@ export default function UsersPage() {
     try {
       const url =
         modalMode === "add"
-          ? "https://lin-server.onrender.com/api/users/register"
-          : `https://lin-server.onrender.com/api/users/${currentUser.id}`;
+          ? "http://localhost:5000/api/users/register"
+          : `http://localhost:5000/api/users/${currentUser.id}`;
 
       const method = modalMode === "add" ? "POST" : "PUT";
 
@@ -941,13 +938,10 @@ export default function UsersPage() {
   // ✅ Delete User
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(
-        `https://lin-server.onrender.com/api/users/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api/users/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete user");
