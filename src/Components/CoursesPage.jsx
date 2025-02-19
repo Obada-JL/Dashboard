@@ -3,10 +3,8 @@ import axios from "axios";
 import { Button, Table, Modal, Form, Row, Col } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "../contexts/LanguageContext";
 
 export default function CoursesPage() {
-  const t = useTranslation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [lessons, setLessons] = useState([]);
@@ -48,7 +46,7 @@ export default function CoursesPage() {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/getCategorys"
+        "https://lin-server.onrender.com/api/getCategorys"
       );
       setCategories(response.data);
       if (response.data.length > 0) {
@@ -61,7 +59,7 @@ export default function CoursesPage() {
 
   // const fetchLessons = async (categoryId) => {
   //   try {
-  //     const response = await axios.get("http://localhost:5000/api/getCourses");
+  //     const response = await axios.get("https://lin-server.onrender.com/api/getCourses");
   //     response.data.forEach((lesson) => {
   //       if (lesson.courseField === categoryId) {
   //         setLessons((prev) => [...prev, lesson]);
@@ -77,7 +75,9 @@ export default function CoursesPage() {
   };
   const fetchLessons = async (categoryId) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/getCourses");
+      const response = await axios.get(
+        "https://lin-server.onrender.com/api/getCourses"
+      );
       if (!categoryId) {
         setLessons(response.data);
         return;
@@ -140,8 +140,8 @@ export default function CoursesPage() {
       console.log("Submitting course data:", Object.fromEntries(formData));
 
       const url = editingCourse
-        ? `http://localhost:5000/api/updateCourse/${editingCourse._id}`
-        : "http://localhost:5000/api/addCourse";
+        ? `https://lin-server.onrender.com/api/updateCourse/${editingCourse._id}`
+        : "https://lin-server.onrender.com/api/addCourse";
 
       const response = await axios.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -218,7 +218,7 @@ export default function CoursesPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/addCategory",
+        "https://lin-server.onrender.com/api/addCategory",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -250,7 +250,9 @@ export default function CoursesPage() {
 
   const handleDeleteCourse = async (courseId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/deleteCourse/${courseId}`);
+      await axios.delete(
+        `https://lin-server.onrender.com/api/deleteCourse/${courseId}`
+      );
       fetchLessons(activeCategory);
       Swal.fire({
         title: "Success!",
@@ -272,7 +274,7 @@ export default function CoursesPage() {
   return (
     <div className="p-4" dir="rtl">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="fw-bold">{t("courses.title")}</h1>
+        <h1 className="fw-bold">إدارة الدورات التدريبية</h1>
         <div className="d-flex gap-2">
           <Button
             variant="success"
@@ -280,7 +282,7 @@ export default function CoursesPage() {
             onClick={() => setShowCategoryModal(true)}
           >
             <i className="fas fa-folder-plus"></i>
-            {t("courses.addCategory")}
+            إضافة تصنيف
           </Button>
           <Button
             variant="primary"
@@ -288,7 +290,7 @@ export default function CoursesPage() {
             onClick={() => setShowCourseModal(true)}
           >
             <i className="fas fa-plus-circle"></i>
-            {t("courses.addCourse")}
+            إضافة دورة
           </Button>
         </div>
       </div>
