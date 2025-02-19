@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
-import { useTranslation } from "../contexts/LanguageContext";
 import axios from "axios";
 
 export default function CourseDetails() {
   const { id } = useParams();
   s;
   const navigate = useNavigate();
-  const t = useTranslation();
+
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,7 +15,7 @@ export default function CourseDetails() {
     const fetchCourse = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/getCourse/${id}`
+          `https://lin-server.onrender.com/api/getCourse/${id}`
         );
         console.log("Course data:", response.data);
         setCourse(response.data);
@@ -80,7 +79,7 @@ export default function CourseDetails() {
             <div className="text-center mb-4">
               <h4>{t("courses.mainImage")}</h4>
               <img
-                src={`http://localhost:5000/courseImages/${course.courseMainImage}`}
+                src={`https://lin-server.onrender.com/courseImages/${course.courseMainImage}`}
                 alt={course.mainTitle?.en}
                 className="img-fluid rounded"
                 style={{ maxHeight: "400px" }}
@@ -140,7 +139,7 @@ export default function CourseDetails() {
                   <Col md={4} key={index} className="mb-3">
                     <Card>
                       <Card.Img
-                        src={`http://localhost:5000/courseImages/${image}`}
+                        src={`https://lin-server.onrender.com/courseImages/${image}`}
                         alt={`Course image ${index + 1}`}
                         className="img-fluid"
                       />
